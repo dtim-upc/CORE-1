@@ -33,7 +33,7 @@ public class EngineDeclaration {
 
     static Engine engine; //engine we will use on the test
     static List<String> outputs = new ArrayList<String>(); //outputs that will be test
-    public static List<CDSComplexEventGrouping> allMatches = new ArrayList<>(); //match of engine or 'outputs' of the query
+    public static List<CDSComplexEventGrouping<?>> allMatches = new ArrayList<>(); //match of engine or 'outputs' of the query
     public static long countTests; //How many tests are there
 
     static {
@@ -147,7 +147,7 @@ public class EngineDeclaration {
         }
 
         Set<Double> values = new HashSet<>();
-        for(CDSComplexEventGrouping match : EngineDeclaration.allMatches) {
+        for(CDSComplexEventGrouping<?> match : EngineDeclaration.allMatches) {
             match.forEach(m -> {
                 m.forEach(event ->
                         values.add((Double) event.getValue("value"))

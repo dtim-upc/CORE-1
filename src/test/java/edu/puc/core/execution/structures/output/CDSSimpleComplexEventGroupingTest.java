@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class CDSComplexEventGroupingTest {
+public class CDSSimpleComplexEventGroupingTest {
 
     private static final Event event0 = new Event(0);
     private static final Event event1 = new Event(1);
@@ -72,7 +72,7 @@ public class CDSComplexEventGroupingTest {
     public void testIterator() {
         Pair<CDSNode, List<ComplexEvent>> pair = getCDS1();
         List<ComplexEvent> expectedComplexEvents = pair.b;
-        CDSComplexEventGrouping complexEventGrouping = new CDSComplexEventGrouping(event3, 0, Optional.empty());
+        CDSSimpleComplexEventGrouping complexEventGrouping = new CDSSimpleComplexEventGrouping(event3, 0, Optional.empty());
         complexEventGrouping.addCDSNode(pair.a);
         int i = 0;
         for(ComplexEvent ce: complexEventGrouping) {
@@ -90,7 +90,7 @@ public class CDSComplexEventGroupingTest {
         List<ComplexEvent> expectedComplexEvents = pair.b;
 
         // Process 0
-        CDSComplexEventGrouping complexEventGrouping = new CDSComplexEventGrouping(event3, 0, Optional.of(new DistributionConfiguration(0, processes)));
+        CDSSimpleComplexEventGrouping complexEventGrouping = new CDSSimpleComplexEventGrouping(event3, 0, Optional.of(new DistributionConfiguration(0, processes)));
         complexEventGrouping.addCDSNode(pair.a);
         for(ComplexEvent ce: complexEventGrouping) {
             assertEquals("ComplexEvent" + i, expectedComplexEvents.get(i), ce);
@@ -99,7 +99,7 @@ public class CDSComplexEventGroupingTest {
         assertEquals("Number of complex events", 2, i);
 
         // Process 1
-        CDSComplexEventGrouping complexEventGrouping2 = new CDSComplexEventGrouping(event3, 0, Optional.of(new DistributionConfiguration(1, processes)));
+        CDSSimpleComplexEventGrouping complexEventGrouping2 = new CDSSimpleComplexEventGrouping(event3, 0, Optional.of(new DistributionConfiguration(1, processes)));
         complexEventGrouping2.addCDSNode(pair.a);
         for(ComplexEvent ce: complexEventGrouping2) {
             assertEquals("ComplexEvent" + i, expectedComplexEvents.get(i), ce);
@@ -195,7 +195,7 @@ public class CDSComplexEventGroupingTest {
     public void testIteratorMultipleFinalStates() {
         Pair<List<CDSNode>, List<ComplexEvent>> pair = getCDS2();
         List<ComplexEvent> expectedComplexEvents = pair.b;
-        CDSComplexEventGrouping complexEventGrouping = new CDSComplexEventGrouping(event4, 0, Optional.empty());
+        CDSSimpleComplexEventGrouping complexEventGrouping = new CDSSimpleComplexEventGrouping(event4, 0, Optional.empty());
         for(CDSNode cdsRoot : pair.a) {
             complexEventGrouping.addCDSNode(cdsRoot);
         }
@@ -238,7 +238,7 @@ public class CDSComplexEventGroupingTest {
 
         int i = 0;
         for(int process : zeroToN(processes)) {
-            CDSComplexEventGrouping complexEventGrouping = new CDSComplexEventGrouping(event4, 0, Optional.of(new DistributionConfiguration(process, processes)));
+            CDSSimpleComplexEventGrouping complexEventGrouping = new CDSSimpleComplexEventGrouping(event4, 0, Optional.of(new DistributionConfiguration(process, processes)));
             for(CDSNode cdsRoot : pair.a) {
                 complexEventGrouping.addCDSNode(cdsRoot);
             }
@@ -283,7 +283,7 @@ public class CDSComplexEventGroupingTest {
         ComplexEvent expectedComplexEvent = pair.b;
 
         // Process 0
-        CDSComplexEventGrouping complexEventGrouping = new CDSComplexEventGrouping(event2, 0, Optional.of(new DistributionConfiguration(0, processes)));
+        CDSSimpleComplexEventGrouping complexEventGrouping = new CDSSimpleComplexEventGrouping(event2, 0, Optional.of(new DistributionConfiguration(0, processes)));
         complexEventGrouping.addCDSNode(pair.a);
         for(ComplexEvent ce: complexEventGrouping) {
             assertEquals("ComplexEvent", expectedComplexEvent, ce);
@@ -292,7 +292,7 @@ public class CDSComplexEventGroupingTest {
         assertEquals("Number of complex events", 1, i);
 
         // Process 1
-        CDSComplexEventGrouping complexEventGrouping2 = new CDSComplexEventGrouping(event3, 0, Optional.of(new DistributionConfiguration(1, processes)));
+        CDSSimpleComplexEventGrouping complexEventGrouping2 = new CDSSimpleComplexEventGrouping(event3, 0, Optional.of(new DistributionConfiguration(1, processes)));
         complexEventGrouping2.addCDSNode(pair.a);
         for(ComplexEvent ce: complexEventGrouping2) {
             assertNull(ce);

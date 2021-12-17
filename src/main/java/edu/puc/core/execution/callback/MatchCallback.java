@@ -71,7 +71,7 @@ public class MatchCallback implements Consumer<CDSComplexEventGrouping> {
         }
     }
 
-    private void printCallback(CDSComplexEventGrouping matches) {
+    private void printCallback(CDSComplexEventGrouping<?> matches) {
         count = 0;
         System.err.println("Event " + matches.getLastEvent() + " triggered matches:");
 //        Profiler.incrementMatches();
@@ -92,7 +92,7 @@ public class MatchCallback implements Consumer<CDSComplexEventGrouping> {
         System.err.println();
     }
 
-    private void writeCallback(CDSComplexEventGrouping matches) {
+    private void writeCallback(CDSComplexEventGrouping<?> matches) {
         try {
             int event_count = 0;
             String baseName = args.length == 0 ? "all" : (String) args[0];
@@ -120,7 +120,7 @@ public class MatchCallback implements Consumer<CDSComplexEventGrouping> {
             e.printStackTrace();
         }
     }
-    private void emailCallback(CDSComplexEventGrouping matches) {
+    private void emailCallback(CDSComplexEventGrouping<?> matches) {
         try {
             String address = (String) args[0];
 

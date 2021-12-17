@@ -11,7 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
-public class CDSTimeComplexEventGrouping extends CDSComplexEventGrouping implements Iterable<ComplexEvent> {
+public class CDSTimeComplexEventGrouping extends CDSComplexEventGrouping<CDSTimeNode> {
     private long totalMatches;
     private Event lastEvent;
     private long limit;
@@ -25,18 +25,21 @@ public class CDSTimeComplexEventGrouping extends CDSComplexEventGrouping impleme
         this.limit = limit;
         this.windowDelta = windowDelta;
         this.currentTime = currentTime;
-        totalMatches = 0;
-        CDSTimeNodes = new ArrayList<>();
+        this.totalMatches = 0;
+        this.CDSTimeNodes = new ArrayList<>();
     }
 
+    @Override
     public void addCDSNode(CDSTimeNode rootNode) {
-        CDSTimeNodes.add(rootNode);
+        this.CDSTimeNodes.add(rootNode);
     }
 
+    @Override
     public long size(){
         return totalMatches;
     }
 
+    @Override
     public Event getLastEvent(){
         return lastEvent;
     }

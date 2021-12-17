@@ -4,6 +4,7 @@ import edu.puc.core.execution.callback.MatchCallback;
 import edu.puc.core.execution.cea.Traverser;
 import edu.puc.core.execution.structures.CDS.CDSNode;
 import edu.puc.core.execution.structures.output.CDSComplexEventGrouping;
+import edu.puc.core.execution.structures.output.CDSSimpleComplexEventGrouping;
 import edu.puc.core.execution.structures.states.State;
 import edu.puc.core.execution.watcher.ExecutorWatcher;
 import edu.puc.core.parser.plan.LogicalPlan;
@@ -68,7 +69,7 @@ public abstract class BaseExecutor {
         watcher.update();
         if (matchCallback != null) {
             // CDSComplexEventGrouping implements the Algorithm 2 on an Iterator pattern.
-            CDSComplexEventGrouping complexEventGrouping = new CDSComplexEventGrouping(triggeringEvent, limit, this.distributionConfiguration);
+            CDSSimpleComplexEventGrouping complexEventGrouping = new CDSSimpleComplexEventGrouping(triggeringEvent, limit, this.distributionConfiguration);
             for (State<?> state : activeFinalStates) {
                 complexEventGrouping.addCDSNode(states.get(state));
             }
