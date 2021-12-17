@@ -1,5 +1,5 @@
-import edu.puc.core.engine.rmi.RemoteCOREClient;
-import static edu.puc.core.execution.callback.MatchCallbackType.WRITE;
+import edu.puc.core2.engine.rmi.RemoteCOREClient;
+import static edu.puc.core2.execution.callback.MatchCallbackType.WRITE;
 
 import java.rmi.RemoteException;
 import java.rmi.NotBoundException;

@@ -1,9 +1,14 @@
-# CORE
+# CORE2
+
+Implementation based on ["CORE: a COmplex event Recognition Engine"](https://github.com/CORE-cer/full-paper/blob/master/CORE:%20a%20COmplex%20event%20Recognition%20Engine%20(full%20version).pdf).
+
 ## Requirements
-1) Install java 11
-2) Install [gradle](https://gradle.org/) version 5.X.X
+
+1. `jdk >=11` or `openjdk >=11`
+2. [Gradle 5.X.X](https://gradle.org/) (other versions will not work!)
 
 ## Execution
+
 - Compile with gradle each time changes are made in the code. In the case of linux, move to root project directory and execute in a terminal ```/usr/bin/gradle fatjar```. This will create a fatjar file (.jar) which path will need to be passed as argument when the code is ran.
 - The following options to Java VM must be passed as arguments as well:
   `-Djava.security.manager -Djava.security.policy=path/to/java.policy`

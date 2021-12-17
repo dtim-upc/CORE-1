@@ -3,7 +3,7 @@ plugins {
     id 'antlr'
 }
 
-group 'edu.puc.core'
+group 'edu.puc.core2'
 version '1.0-SNAPSHOT'
 
 sourceCompatibility = 11
@@ -36,7 +36,7 @@ task fatJar(type: Jar) {
     }
     manifest {
         attributes(
-                'Main-Class': 'edu.puc.core.Main'
+                'Main-Class': 'edu.puc.core2.Main'
         )
     }
     with jar
