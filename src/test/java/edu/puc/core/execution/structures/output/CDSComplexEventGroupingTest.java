@@ -1,6 +1,7 @@
 package edu.puc.core.execution.structures.output;
 
 import edu.puc.core.execution.structures.CDS.CDSNode;
+import edu.puc.core.execution.structures.CDS.CDSNonUnionNode;
 import edu.puc.core.execution.structures.CDS.CDSOutputNode;
 import edu.puc.core.execution.structures.CDS.CDSUnionNode;
 import edu.puc.core.parser.plan.cea.Transition;
@@ -40,7 +41,7 @@ public class CDSComplexEventGroupingTest {
      bottom
     */
     public static Pair<CDSNode, List<ComplexEvent>> getCDS1() {
-        CDSNode zero = new CDSOutputNode(CDSNode.BOTTOM, Transition.TransitionType.BLACK, event0);
+        CDSNode zero = new CDSOutputNode(CDSNonUnionNode.BOTTOM, Transition.TransitionType.BLACK, event0);
         CDSNode one = new CDSOutputNode(zero, Transition.TransitionType.BLACK, event1);
         CDSNode two = new CDSOutputNode(one, Transition.TransitionType.BLACK, event2);
         CDSNode two2 = new CDSOutputNode(zero, Transition.TransitionType.BLACK, event2);
@@ -125,7 +126,7 @@ public class CDSComplexEventGroupingTest {
      bottom
     */
     public static Pair<List<CDSNode>, List<ComplexEvent>> getCDS2() {
-        CDSNode zero = new CDSOutputNode(CDSNode.BOTTOM, Transition.TransitionType.BLACK, event0);
+        CDSNode zero = new CDSOutputNode(CDSNonUnionNode.BOTTOM, Transition.TransitionType.BLACK, event0);
         CDSNode one = new CDSOutputNode(zero, Transition.TransitionType.BLACK, event1);
         CDSNode two = new CDSOutputNode(one, Transition.TransitionType.BLACK, event2);
         CDSNode two2 = new CDSOutputNode(zero, Transition.TransitionType.BLACK, event2);
@@ -261,7 +262,7 @@ public class CDSComplexEventGroupingTest {
      bottom
     */
     public static Pair<CDSNode, ComplexEvent> getCDS3() {
-        CDSNode zero = new CDSOutputNode(CDSNode.BOTTOM, Transition.TransitionType.BLACK, event0);
+        CDSNode zero = new CDSOutputNode(CDSNonUnionNode.BOTTOM, Transition.TransitionType.BLACK, event0);
         CDSNode one = new CDSOutputNode(zero, Transition.TransitionType.BLACK, event1);
         CDSNode two = new CDSOutputNode(one, Transition.TransitionType.BLACK, event2);
 

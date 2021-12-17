@@ -3,7 +3,7 @@ package edu.puc.core.execution.structures.CDS;
 import edu.puc.core.parser.plan.cea.Transition;
 import edu.puc.core.runtime.events.Event;
 
-public class CDSOutputNode extends CDSNode {
+public class CDSOutputNode extends CDSNonUnionNode {
 
     private final Event event;
     private final Transition.TransitionType transitionType;

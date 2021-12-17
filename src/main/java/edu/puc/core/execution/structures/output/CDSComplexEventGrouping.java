@@ -2,6 +2,7 @@ package edu.puc.core.execution.structures.output;
 
 
 import edu.puc.core.execution.structures.CDS.CDSNode;
+import edu.puc.core.execution.structures.CDS.CDSNonUnionNode;
 import edu.puc.core.execution.structures.CDS.CDSOutputNode;
 import edu.puc.core.execution.structures.CDS.CDSUnionNode;
 import edu.puc.core.runtime.events.Event;
@@ -80,7 +81,7 @@ public class CDSComplexEventGrouping implements Iterable<ComplexEvent> {
                 // Edge case that only happens when the complex event has no union nodes.
                 // This prevents any traversal if the process doesn't have any work left
                 if (current.getPaths() <= s1) {
-                    current = CDSNode.BOTTOM;
+                    current = CDSNonUnionNode.BOTTOM;
                     return null;
                 }
                 while (true) {
@@ -123,10 +124,10 @@ public class CDSComplexEventGrouping implements Iterable<ComplexEvent> {
                         } else {
                             if (!stack.isEmpty()) {
                                 // Workaround to force the stack case (first 'if')
-                                current = CDSNode.BOTTOM;
+                                current = CDSNonUnionNode.BOTTOM;
                             } else {
                                 // Nothing left to do in this CDS.
-                                current = CDSNode.BOTTOM;
+                                current = CDSNonUnionNode.BOTTOM;
                                 return null;
                             }
                         }

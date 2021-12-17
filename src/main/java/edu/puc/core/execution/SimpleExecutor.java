@@ -3,6 +3,7 @@ package edu.puc.core.execution;
 
 import edu.puc.core.execution.cea.Traverser;
 import edu.puc.core.execution.structures.CDS.CDSNode;
+import edu.puc.core.execution.structures.CDS.CDSNonUnionNode;
 import edu.puc.core.execution.structures.CDS.CDSOutputNode;
 import edu.puc.core.execution.structures.CDS.CDSUnionNode;
 import edu.puc.core.execution.structures.states.State;
@@ -28,7 +29,7 @@ public class SimpleExecutor extends BaseExecutor {
     }
 
     private void startNewRun() {
-        states.put(traverser.getInitialState(), CDSNode.BOTTOM);
+        states.put(traverser.getInitialState(), CDSNonUnionNode.BOTTOM);
     }
 
     @Override

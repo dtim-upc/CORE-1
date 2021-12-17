@@ -18,6 +18,8 @@ public class MaxTraverser extends Traverser<DoubleStateSet> {
 
     @Override
     StateTuple calculateNextState(State<DoubleStateSet> fromState, BitSet vector) {
+        // Same algorithm as in section 7.2 (max case)
+        // The final state is not modified though..
         StateTuple ret = new StateTuple();
 
         Set<Integer> blackSetR = new HashSet<>();
@@ -29,7 +31,7 @@ public class MaxTraverser extends Traverser<DoubleStateSet> {
         /* R set */
         getNextStates(fromState.getStateSet().getFirstStateSet(), vector, blackSetR, whiteSetR);
 
-        /* S set */
+        /* S set (W set in the paper) */
         getNextStates(fromState.getStateSet().getSecondStateSet(), vector, blackSetS, whiteSetS);
 
         /* Black State */

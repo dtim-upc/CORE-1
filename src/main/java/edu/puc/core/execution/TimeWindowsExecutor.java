@@ -3,7 +3,7 @@ package edu.puc.core.execution;
 import edu.puc.core.execution.cea.Traverser;
 import edu.puc.core.execution.structures.CDS.time.CDSNodeManager;
 import edu.puc.core.execution.structures.CDS.time.CDSTimeNode;
-import edu.puc.core.execution.structures.nodelist.UnionList;
+import edu.puc.core.execution.structures.unionlist.UnionList;
 import edu.puc.core.execution.structures.output.CDSTimeComplexEventGrouping;
 import edu.puc.core.execution.structures.states.State;
 import edu.puc.core.execution.structures.states.StateTuple;

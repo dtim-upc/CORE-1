@@ -1,4 +1,4 @@
-package edu.puc.core.execution.structures.nodelist;
+package edu.puc.core.execution.structures.unionlist;
 
 import edu.puc.core.execution.structures.CDS.time.CDSNodeManager;
 import edu.puc.core.execution.structures.CDS.time.CDSTimeNode;
@@ -6,7 +6,6 @@ import edu.puc.core.execution.structures.CDS.time.CDSTimeUnionNode;
 
 import java.util.ArrayList;
 
-/** Union-list */
 public class UnionList {
 
     private final ArrayList<CDSTimeNode> nodeList;
@@ -17,7 +16,6 @@ public class UnionList {
         this.manager = manager;
     }
 
-    /** merge(ul) */
     public CDSTimeNode merge() {
         if (nodeList.isEmpty()) {
             return null;
@@ -34,7 +32,6 @@ public class UnionList {
         }
     }
 
-    /** insert(ul, n) */
     public void insert(CDSTimeNode newNode) {
         if (nodeList.isEmpty()) {
             nodeList.add(newNode);

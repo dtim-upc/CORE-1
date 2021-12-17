@@ -29,21 +29,6 @@ public class CDSTimeComplexEventGrouping extends CDSComplexEventGrouping impleme
         CDSTimeNodes = new ArrayList<>();
     }
 
-    public CDSTimeComplexEventGrouping(Event currentEvent, long windowDelta, long currentTime){
-        this(currentEvent, 0, windowDelta, currentTime);
-    }
-
-//    private CDSTimeComplexEventGrouping(CDSTimeNode rootNode){
-//        CDSTimeNodes = new ArrayList<>();
-//        CDSTimeNodes.add(rootNode);
-//    }
-//
-//    private CDSTimeComplexEventGrouping(CDSTimeNode rootNode, long limit){
-//        CDSTimeNodes = new ArrayList<>();
-//        CDSTimeNodes.add(rootNode);
-//        this.limit = limit;
-//    }
-
     public void addCDSNode(CDSTimeNode rootNode) {
         CDSTimeNodes.add(rootNode);
     }

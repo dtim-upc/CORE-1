@@ -10,11 +10,11 @@ public class CDSUnionNode extends CDSNode {
     private final int paths;
 
     public CDSUnionNode(CDSNode left, CDSNode right) {
-        if (left instanceof CDSOutputNode || left == BOTTOM) {
+        if (left instanceof CDSNonUnionNode) {
             this.left = left;
             this.right = right;
         } else {
-            if (right instanceof CDSOutputNode || right == BOTTOM) {
+            if (right instanceof CDSNonUnionNode) {
                 this.left = right;
                 this.right = left;
             } else {

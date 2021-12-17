@@ -112,8 +112,7 @@ public class PatternVisitorTest {
         assertEquals("Correct final states", 1, cea.getFinalState());
         assertEquals("Correct transitions",
                 java.util.stream.Stream.of(
-                        new Transition(0, 1, PredicateFactory.getInstance().from(Event.getSchemaFor("A")), Transition.TransitionType.BLACK),
-                        new Transition(0, 0, BitVector.getTrueBitVector(), Transition.TransitionType.WHITE)
+                        new Transition(0, 1, PredicateFactory.getInstance().from(Event.getSchemaFor("A")), Transition.TransitionType.BLACK)
                 ).collect(Collectors.toSet()),
                 new HashSet<>(cea.getTransitions()));
         Set<Label> labelSet = java.util.stream.Stream.of(Label.get("A"), Label.get("my_a")).collect(Collectors.toSet());
@@ -140,8 +139,7 @@ public class PatternVisitorTest {
         assertEquals("Correct final states", 1, cea.getFinalState());
         assertEquals("Correct transitions",
                 java.util.stream.Stream.of(
-                        new Transition(0, 1, PredicateFactory.getInstance().from(Stream.getSchemaFor("S1"), Event.getSchemaFor("A")), Transition.TransitionType.BLACK),
-                        new Transition(0, 0, BitVector.getTrueBitVector(), Transition.TransitionType.WHITE)
+                        new Transition(0, 1, PredicateFactory.getInstance().from(Stream.getSchemaFor("S1"), Event.getSchemaFor("A")), Transition.TransitionType.BLACK)
                 ).collect(Collectors.toSet()),
                 new HashSet<>(cea.getTransitions()));
         Set<Label> labelSet = java.util.stream.Stream.of(Label.get("A")).collect(Collectors.toSet());
@@ -163,12 +161,5 @@ public class PatternVisitorTest {
                         "FROM S3\n" +
                         "WHERE ( A ; B ; C )"
         );
-
-//        events = new edu.puc.core.runtime.events.Event[] {
-//                new edu.puc.core.runtime.events.Event("S", "D"),
-//                new edu.puc.core.runtime.events.Event("S", "A"),
-//                new edu.puc.core.runtime.events.Event("S", "B"),
-//                new edu.puc.core.runtime.events.Event("S", "C"),
-//        };
     }
 }

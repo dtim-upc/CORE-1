@@ -12,15 +12,16 @@ public abstract class Traverser<S extends SimpleStateSet> {
     private boolean initialized = false;
 
     // Each position corresponds to a state.
-    List<Map<BitSet, StateTuple>> knownTransitionsList;
+    protected List<Map<BitSet, StateTuple>> knownTransitionsList;
 
-    Integer INITIAL;
+    protected Integer INITIAL;
 
-    private Map<SimpleStateSet, State<S>> stateSetToStateMap; // From Set<Int> to State(contains the set of Ints)
+    // From Set<Int> to State (contains the set of Ints)
+    private Map<SimpleStateSet, State<S>> stateSetToStateMap;
     private final State<S> rejectState = new State<>(State.rejectionId);
     private final State<S> initialState = new State<>(0);
 
-    Traverser(ExecutableCEA cea) {
+    protected Traverser(ExecutableCEA cea) {
         this.cea = cea;
 
         INITIAL = cea.getInitialState();
@@ -29,7 +30,7 @@ public abstract class Traverser<S extends SimpleStateSet> {
         knownTransitionsList.add(new HashMap<>());
     }
 
-    void init(S startSet){
+    protected void init(S startSet){
         ensureFirstInitialization();
         stateSetToStateMap = new HashMap<>();
         initialState.setFinal(cea.isFinal(INITIAL));
@@ -38,14 +39,15 @@ public abstract class Traverser<S extends SimpleStateSet> {
         stateSetToStateMap.put(startSet, initialState);
     }
 
-    void getNextStates(Set<Integer> fromStates, BitSet vector, Set<Integer> blackSet, Set<Integer> whiteSet) {
+    protected void getNextStates(Set<Integer> fromStates, BitSet vector, Set<Integer> blackSet, Set<Integer> whiteSet) {
         for (Integer s : fromStates) {
             blackSet.addAll(cea.blackTransition(s, vector));
             whiteSet.addAll(cea.whiteTransition(s, vector));
         }
     }
 
-    State<S> getStateFromStateSet(S stateSet) {
+    // From Set<Int> to State (contains the set of Ints)
+    protected State<S> getStateFromStateSet(S stateSet) {
         State<S> newState = stateSetToStateMap.get(stateSet);
         if (newState == null) {
             if (stateSet.isEmpty()){
