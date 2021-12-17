@@ -1,0 +1,4 @@
+SELECT *
+FROM S
+WHERE ((T OR (H FILTER H[hum < 60]))+; (H FILTER H[hum > 60]))
+WITHIN 1000 EVENTS
