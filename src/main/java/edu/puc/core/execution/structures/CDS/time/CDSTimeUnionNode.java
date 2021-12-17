@@ -6,9 +6,10 @@ public class CDSTimeUnionNode extends CDSTimeNode {
 
     private final WeakReference<CDSTimeNode> left;
     private final WeakReference<CDSTimeNode> right;
-    private final long mm;
+    private final long max;
     private final int paths;
 
+    /** Use {@link CDSNodeManager} to create CDSTimeNodes. */
     CDSTimeUnionNode(WeakReference<CDSTimeNode> left, WeakReference<CDSTimeNode> right) {
         CDSTimeNode tempLeft = left.get();
         CDSTimeNode tempRight = right.get();
@@ -17,7 +18,7 @@ public class CDSTimeUnionNode extends CDSTimeNode {
         // If left is null, right will also be null.
         // This union node will point to something already outside the time-window, therefore we can set max(u) = 0
         // and wait for the next `prune` to remove this union node pointing to the ether.
-        this.mm = tempLeft != null ? tempLeft.getMm() : 0;
+        this.max = tempLeft != null ? tempLeft.getMax() : 0;
         this.paths = (tempLeft != null ? tempLeft.getPaths() : 0) + (tempRight != null ? tempRight.getPaths() : 0);
     }
 
@@ -43,8 +44,8 @@ public class CDSTimeUnionNode extends CDSTimeNode {
     }
 
     @Override
-    public long getMm() {
-        return this.mm;
+    public long getMax() {
+        return this.max;
     }
 
     @Override

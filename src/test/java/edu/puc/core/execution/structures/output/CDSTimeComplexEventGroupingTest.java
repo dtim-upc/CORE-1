@@ -1,13 +1,12 @@
 package edu.puc.core.execution.structures.output;
 
-import edu.puc.core.execution.structures.CDS.CDSNode;
-import edu.puc.core.execution.structures.CDS.CDSNonUnionNode;
-import edu.puc.core.execution.structures.CDS.CDSOutputNode;
-import edu.puc.core.execution.structures.CDS.CDSUnionNode;
+import edu.puc.core.execution.structures.CDS.time.CDSNodeManager;
+import edu.puc.core.execution.structures.CDS.time.CDSTimeNode;
 import edu.puc.core.parser.plan.cea.Transition;
 import edu.puc.core.runtime.events.Event;
 import edu.puc.core.util.DistributionConfiguration;
 import org.antlr.v4.runtime.misc.Pair;
+import org.antlr.v4.runtime.misc.Triple;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -18,23 +17,21 @@ import java.util.Optional;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-/* TODO
-- [ ] Test enumeration w/o time-window
-- [ ] Test range enumeration (distribution)
-- [ ] Test time-window enumeration
-*/
 public class CDSTimeComplexEventGroupingTest {
-
     private static final Event event0 = new Event(0);
     private static final Event event1 = new Event(1);
     private static final Event event2 = new Event(2);
     private static final Event event3 = new Event(3);
     private static final Event event4 = new Event(4);
+    private static final Event event5 = new Event(5);
 
     private static final long ignoreWindowDelta = Long.MAX_VALUE;
+    private static final long ignoreCurrentTime = -1;
 
     @BeforeClass
     public static void setUp() {}
+
+    // ************************* Regular enumeration ******************************
 
     /*
              3
@@ -49,14 +46,16 @@ public class CDSTimeComplexEventGroupingTest {
        |
      bottom
     */
-    public static Pair<CDSNode, List<ComplexEvent>> getCDS1() {
-        CDSNode zero = new CDSOutputNode(CDSNonUnionNode.BOTTOM, Transition.TransitionType.BLACK, event0);
-        CDSNode one = new CDSOutputNode(zero, Transition.TransitionType.BLACK, event1);
-        CDSNode two = new CDSOutputNode(one, Transition.TransitionType.BLACK, event2);
-        CDSNode two2 = new CDSOutputNode(zero, Transition.TransitionType.BLACK, event2);
-        CDSNode v1 = new CDSUnionNode(two2, one);
-        CDSNode v2 = new CDSUnionNode(two, v1);
-        CDSNode three = new CDSOutputNode(v2, Transition.TransitionType.BLACK, event3);
+    public static Pair<CDSTimeNode, List<ComplexEvent>> getCDS1() {
+        CDSNodeManager m = new CDSNodeManager();
+        CDSTimeNode bottom = m.createBottomNode(0);
+        CDSTimeNode zero = m.createOutputNode(bottom, Transition.TransitionType.BLACK, event0, 0);
+        CDSTimeNode one = m.createOutputNode(zero, Transition.TransitionType.BLACK, event1, 1);
+        CDSTimeNode two = m.createOutputNode(one, Transition.TransitionType.BLACK, event2, 2);
+        CDSTimeNode two2 = m.createOutputNode(zero, Transition.TransitionType.BLACK, event2, 2);
+        CDSTimeNode v1 = m.createUnionNode(two2, one);
+        CDSTimeNode v2 = m.createUnionNode(two, v1);
+        CDSTimeNode three = m.createOutputNode(v2, Transition.TransitionType.BLACK, event3, 3);
 
         ComplexEvent complexEvent1 = new ComplexEvent();
         complexEvent1.push(event3, null);
@@ -77,45 +76,19 @@ public class CDSTimeComplexEventGroupingTest {
         return new Pair<>(three, List.of(complexEvent1, complexEvent2, complexEvent3));
     }
 
-//    @Test
-//    public void testIterator() {
-//        Pair<CDSNode, List<ComplexEvent>> pair = getCDS1();
-//        List<ComplexEvent> expectedComplexEvents = pair.b;
-//        CDSTimeComplexEventGroupingTest complexEventGrouping = new CDSTimeComplexEventGrouping(event3, 0, ignoreWindowDelta, 0);
-//        complexEventGrouping.addCDSNode(pair.a);
-//        int i = 0;
-//        for(ComplexEvent ce: complexEventGrouping) {
-//            assertEquals("ComplexEvent" + i, expectedComplexEvents.get(i), ce);
-//            ++i;
-//        }
-//        assertEquals("Number of complex events", 3, i);
-//    }
-
-//    @Test
-//    public void testDistributedIterator() {
-//        int processes = 2;
-//        int i = 0;
-//        Pair<CDSNode, List<ComplexEvent>> pair = getCDS1();
-//        List<ComplexEvent> expectedComplexEvents = pair.b;
-//
-//        // Process 0
-//        CDSComplexEventGrouping complexEventGrouping = new CDSComplexEventGrouping(event3, 0, Optional.of(new DistributionConfiguration(0, processes)));
-//        complexEventGrouping.addCDSNode(pair.a);
-//        for(ComplexEvent ce: complexEventGrouping) {
-//            assertEquals("ComplexEvent" + i, expectedComplexEvents.get(i), ce);
-//            ++i;
-//        }
-//        assertEquals("Number of complex events", 2, i);
-//
-//        // Process 1
-//        CDSComplexEventGrouping complexEventGrouping2 = new CDSComplexEventGrouping(event3, 0, Optional.of(new DistributionConfiguration(1, processes)));
-//        complexEventGrouping2.addCDSNode(pair.a);
-//        for(ComplexEvent ce: complexEventGrouping2) {
-//            assertEquals("ComplexEvent" + i, expectedComplexEvents.get(i), ce);
-//            ++i;
-//        }
-//        assertEquals("Number of complex events", 3, i);
-//    }
+    @Test
+    public void testIterator() {
+        Pair<CDSTimeNode, List<ComplexEvent>> pair = getCDS1();
+        List<ComplexEvent> expectedComplexEvents = pair.b;
+        CDSTimeComplexEventGrouping complexEventGrouping = new CDSTimeComplexEventGrouping(null, 0, ignoreWindowDelta, ignoreCurrentTime, Optional.empty());
+        complexEventGrouping.addCDSNode(pair.a);
+        int i = 0;
+        for(ComplexEvent ce: complexEventGrouping) {
+            assertEquals("ComplexEvent" + i, expectedComplexEvents.get(i), ce);
+            ++i;
+        }
+        assertEquals("Number of complex events", 3, i);
+    }
 
     /*
                        4
@@ -134,19 +107,21 @@ public class CDSTimeComplexEventGroupingTest {
        |
      bottom
     */
-    public static Pair<List<CDSNode>, List<ComplexEvent>> getCDS2() {
-        CDSNode zero = new CDSOutputNode(CDSNonUnionNode.BOTTOM, Transition.TransitionType.BLACK, event0);
-        CDSNode one = new CDSOutputNode(zero, Transition.TransitionType.BLACK, event1);
-        CDSNode two = new CDSOutputNode(one, Transition.TransitionType.BLACK, event2);
-        CDSNode two2 = new CDSOutputNode(zero, Transition.TransitionType.BLACK, event2);
-        CDSNode v1 = new CDSUnionNode(two, one);
-        CDSNode v2 = new CDSUnionNode(two2, v1);
-        CDSNode three = new CDSOutputNode(v2, Transition.TransitionType.BLACK, event3);
-        CDSNode three2 = new CDSOutputNode(zero, Transition.TransitionType.BLACK, event3);
-        CDSNode v3 = new CDSUnionNode(three, v2);
-        CDSNode v4 = new CDSUnionNode(three2, v3);
-        CDSNode four = new CDSOutputNode(v4, Transition.TransitionType.BLACK, event4);
-        CDSNode four2 = new CDSOutputNode(zero, Transition.TransitionType.BLACK, event4);
+    public static Pair<List<CDSTimeNode>, List<ComplexEvent>> getCDS2() {
+        CDSNodeManager m = new CDSNodeManager();
+        CDSTimeNode bottom0 = m.createBottomNode(0);
+        CDSTimeNode zero = m.createOutputNode(bottom0, Transition.TransitionType.BLACK, event0, 0);
+        CDSTimeNode one = m.createOutputNode(zero, Transition.TransitionType.BLACK, event1, 1);
+        CDSTimeNode two = m.createOutputNode(one, Transition.TransitionType.BLACK, event2, 2);
+        CDSTimeNode two2 = m.createOutputNode(zero, Transition.TransitionType.BLACK, event2, 2);
+        CDSTimeNode v1 = m.createUnionNode(two, one);
+        CDSTimeNode v2 = m.createUnionNode(two2, v1);
+        CDSTimeNode three = m.createOutputNode(v2, Transition.TransitionType.BLACK, event3, 3);
+        CDSTimeNode three2 = m.createOutputNode(zero, Transition.TransitionType.BLACK, event3, 3);
+        CDSTimeNode v3 = m.createUnionNode(three, v2);
+        CDSTimeNode v4 = m.createUnionNode(three2, v3);
+        CDSTimeNode four = m.createOutputNode(v4, Transition.TransitionType.BLACK, event4, 4);
+        CDSTimeNode four2 = m.createOutputNode(zero, Transition.TransitionType.BLACK, event4, 4);
 
         ComplexEvent complexEvent1 = new ComplexEvent();
         complexEvent1.push(event4, null);
@@ -202,10 +177,10 @@ public class CDSTimeComplexEventGroupingTest {
 
     @Test
     public void testIteratorMultipleFinalStates() {
-        Pair<List<CDSNode>, List<ComplexEvent>> pair = getCDS2();
+        Pair<List<CDSTimeNode>, List<ComplexEvent>> pair = getCDS2();
         List<ComplexEvent> expectedComplexEvents = pair.b;
-        CDSSimpleComplexEventGrouping complexEventGrouping = new CDSSimpleComplexEventGrouping(event4, 0, Optional.empty());
-        for(CDSNode cdsRoot : pair.a) {
+        CDSTimeComplexEventGrouping complexEventGrouping = new CDSTimeComplexEventGrouping(null, 0, ignoreWindowDelta, ignoreCurrentTime, Optional.empty());
+        for(CDSTimeNode cdsRoot : pair.a) {
             complexEventGrouping.addCDSNode(cdsRoot);
         }
         int i = 0;
@@ -213,7 +188,35 @@ public class CDSTimeComplexEventGroupingTest {
             assertEquals("ComplexEvent" + i, expectedComplexEvents.get(i), ce);
             ++i;
         }
-        assertEquals("Number of complex events", 8, i);
+        assertEquals("Number of complex events", expectedComplexEvents.size(), i);
+    }
+
+    // ************************* Ranged Enumeration ******************************
+
+    @Test
+    public void testRangedIterator() {
+        int processes = 2;
+        int i = 0;
+        Pair<CDSTimeNode, List<ComplexEvent>> pair = getCDS1();
+        List<ComplexEvent> expectedComplexEvents = pair.b;
+
+        // Process 0
+        CDSTimeComplexEventGrouping complexEventGrouping = new CDSTimeComplexEventGrouping(null, 0, ignoreWindowDelta, ignoreCurrentTime, Optional.of(new DistributionConfiguration(0, processes)));
+        complexEventGrouping.addCDSNode(pair.a);
+        for(ComplexEvent ce: complexEventGrouping) {
+            assertEquals("ComplexEvent" + i, expectedComplexEvents.get(i), ce);
+            ++i;
+        }
+        assertEquals("Number of complex events", 2, i);
+
+        // Process 1
+        CDSTimeComplexEventGrouping complexEventGrouping2 = new CDSTimeComplexEventGrouping(null, 0, ignoreWindowDelta, ignoreCurrentTime, Optional.of(new DistributionConfiguration(1, processes)));
+        complexEventGrouping2.addCDSNode(pair.a);
+        for(ComplexEvent ce: complexEventGrouping2) {
+            assertEquals("ComplexEvent" + i, expectedComplexEvents.get(i), ce);
+            ++i;
+        }
+        assertEquals("Number of complex events", 3, i);
     }
 
     private List<Integer> zeroToN(int n) {
@@ -226,40 +229,40 @@ public class CDSTimeComplexEventGroupingTest {
         return r;
     }
 
-//    @Test
-//    public void testDistributedIteratorMultipleFinalStates() {
-//        int processes = 3;
-//        Pair<List<CDSNode>, List<ComplexEvent>> pair = getCDS2();
-//        List<ComplexEvent> expectedComplexEvents = List.of(
-//                // Process 0 (notice that process 0 also process 2nd CDS complex events)
-//                pair.b.get(0),
-//                pair.b.get(1),
-//                pair.b.get(2),
-//                pair.b.get(7),
-//                // Process 1
-//                pair.b.get(3),
-//                pair.b.get(4),
-//                pair.b.get(5),
-//                // Process 2
-//                pair.b.get(6)
-//        );
-//        int[] expectedAmountByProcess = {4, 7, 8};
-//
-//        int i = 0;
-//        for(int process : zeroToN(processes)) {
-//            CDSComplexEventGrouping complexEventGrouping = new CDSComplexEventGrouping(event4, 0, Optional.of(new DistributionConfiguration(process, processes)));
-//            for(CDSNode cdsRoot : pair.a) {
-//                complexEventGrouping.addCDSNode(cdsRoot);
-//            }
-//            for(ComplexEvent ce: complexEventGrouping) {
-//                if (ce != null) {
-//                    assertEquals("ComplexEvent" + i, expectedComplexEvents.get(i), ce);
-//                    ++i;
-//                }
-//            }
-//            assertEquals("Number of complex events", expectedAmountByProcess[process], i);
-//        }
-//    }
+    @Test
+    public void testRangedIteratorMultipleFinalStates() {
+        int processes = 3;
+        Pair<List<CDSTimeNode>, List<ComplexEvent>> pair = getCDS2();
+        List<ComplexEvent> expectedComplexEvents = List.of(
+                // Process 0 (notice that process 0 also process 2nd CDS complex events)
+                pair.b.get(0),
+                pair.b.get(1),
+                pair.b.get(2),
+                pair.b.get(7),
+                // Process 1
+                pair.b.get(3),
+                pair.b.get(4),
+                pair.b.get(5),
+                // Process 2
+                pair.b.get(6)
+        );
+        int[] expectedAmountByProcess = {4, 7, 8};
+
+        int i = 0;
+        for(int process : zeroToN(processes)) {
+            CDSTimeComplexEventGrouping complexEventGrouping = new CDSTimeComplexEventGrouping(null, 0, ignoreWindowDelta, ignoreCurrentTime, Optional.of(new DistributionConfiguration(process, processes)));
+            for(CDSTimeNode cdsRoot : pair.a) {
+                complexEventGrouping.addCDSNode(cdsRoot);
+            }
+            for(ComplexEvent ce: complexEventGrouping) {
+                if (ce != null) {
+                    assertEquals("ComplexEvent" + i, expectedComplexEvents.get(i), ce);
+                    ++i;
+                }
+            }
+            assertEquals("Number of complex events", expectedAmountByProcess[process], i);
+        }
+    }
 
     /*
        2
@@ -270,10 +273,12 @@ public class CDSTimeComplexEventGroupingTest {
        |
      bottom
     */
-    public static Pair<CDSNode, ComplexEvent> getCDS3() {
-        CDSNode zero = new CDSOutputNode(CDSNonUnionNode.BOTTOM, Transition.TransitionType.BLACK, event0);
-        CDSNode one = new CDSOutputNode(zero, Transition.TransitionType.BLACK, event1);
-        CDSNode two = new CDSOutputNode(one, Transition.TransitionType.BLACK, event2);
+    public static Pair<CDSTimeNode, ComplexEvent> getCDS3() {
+        CDSNodeManager m = new CDSNodeManager();
+        CDSTimeNode bottom0 = m.createBottomNode(0);
+        CDSTimeNode zero = m.createOutputNode(bottom0, Transition.TransitionType.BLACK, event0, 0);
+        CDSTimeNode one = m.createOutputNode(zero, Transition.TransitionType.BLACK, event1, 1);
+        CDSTimeNode two = m.createOutputNode(one, Transition.TransitionType.BLACK, event2, 2);
 
         ComplexEvent complexEvent = new ComplexEvent();
         complexEvent.push(event2, null);
@@ -284,29 +289,169 @@ public class CDSTimeComplexEventGroupingTest {
     }
 
     // Corner case: when the complex event doesn't have union nodes
-//    @Test
-//    public void testDistributedIteratorCornerCase() {
-//        int processes = 2;
-//        int i = 0;
-//        Pair<CDSNode, ComplexEvent> pair = getCDS3();
-//        ComplexEvent expectedComplexEvent = pair.b;
-//
-//        // Process 0
-//        CDSComplexEventGrouping complexEventGrouping = new CDSComplexEventGrouping(event2, 0, Optional.of(new DistributionConfiguration(0, processes)));
-//        complexEventGrouping.addCDSNode(pair.a);
-//        for(ComplexEvent ce: complexEventGrouping) {
-//            assertEquals("ComplexEvent", expectedComplexEvent, ce);
-//            i++;
-//        }
-//        assertEquals("Number of complex events", 1, i);
-//
-//        // Process 1
-//        CDSComplexEventGrouping complexEventGrouping2 = new CDSComplexEventGrouping(event3, 0, Optional.of(new DistributionConfiguration(1, processes)));
-//        complexEventGrouping2.addCDSNode(pair.a);
-//        for(ComplexEvent ce: complexEventGrouping2) {
-//            assertNull(ce);
-//            i++;
-//        }
-//        assertEquals("Number of complex events", 2, i);
-//    }
+    @Test
+    public void testRangedIteratorCornerCase() {
+        int processes = 2;
+        int i = 0;
+        Pair<CDSTimeNode, ComplexEvent> pair = getCDS3();
+        ComplexEvent expectedComplexEvent = pair.b;
+
+        // Process 0
+        CDSTimeComplexEventGrouping complexEventGrouping = new CDSTimeComplexEventGrouping(null, 0, ignoreWindowDelta, ignoreCurrentTime, Optional.of(new DistributionConfiguration(0, processes)));
+        complexEventGrouping.addCDSNode(pair.a);
+        for(ComplexEvent ce: complexEventGrouping) {
+            assertEquals("ComplexEvent", expectedComplexEvent, ce);
+            i++;
+        }
+        assertEquals("Number of complex events", 1, i);
+
+        // Process 1
+        CDSTimeComplexEventGrouping complexEventGrouping2 = new CDSTimeComplexEventGrouping(null, 0, ignoreWindowDelta, ignoreCurrentTime, Optional.of(new DistributionConfiguration(1, processes)));
+        complexEventGrouping2.addCDSNode(pair.a);
+        for(ComplexEvent ce: complexEventGrouping2) {
+            assertNull(ce);
+            i++;
+        }
+        assertEquals("Number of complex events", 2, i);
+    }
+
+    // ************************* Time-Window Enumeration ******************************
+
+    /*
+             3
+             |
+         ___ V
+     (l)/    |(r)
+       2     2
+       |     |
+       1     1
+       |     |
+       0     b (1)
+       |
+       b (0)
+    */
+    public static Triple<CDSTimeNode, List<ComplexEvent>, Long> getCDSTime1() {
+        CDSNodeManager m = new CDSNodeManager();
+        CDSTimeNode bottom0 = m.createBottomNode(0);
+        CDSTimeNode zero = m.createOutputNode(bottom0, Transition.TransitionType.BLACK, event0, 0);
+        CDSTimeNode oneL = m.createOutputNode(zero, Transition.TransitionType.BLACK, event1, 1);
+        CDSTimeNode twoL = m.createOutputNode(oneL, Transition.TransitionType.BLACK, event2, 2);
+        CDSTimeNode bottom1 = m.createBottomNode(1);
+        CDSTimeNode oneR = m.createOutputNode(bottom1, Transition.TransitionType.BLACK, event1, 1);
+        CDSTimeNode twoR = m.createOutputNode(oneR, Transition.TransitionType.BLACK, event2, 2);
+        CDSTimeNode v = m.createUnionNode(twoL, twoR);
+        CDSTimeNode three = m.createOutputNode(v, Transition.TransitionType.BLACK, event3, 3);
+
+        long timeWindow = 2;
+        // Notice CE {0,1,2,3} is discarded by the time-windows.
+        ComplexEvent complexEvent = new ComplexEvent();
+        complexEvent.push(event3, null);
+        complexEvent.push(event2, null);
+        complexEvent.push(event1, null);
+
+        return new Triple<>(three, List.of(complexEvent), timeWindow);
+    }
+    @Test
+    public void testTimeWindowsIterator() {
+        Triple<CDSTimeNode, List<ComplexEvent>, Long> triplet = getCDSTime1();
+        List<ComplexEvent> expectedComplexEvents = triplet.b;
+        CDSTimeComplexEventGrouping complexEventGrouping = new CDSTimeComplexEventGrouping(null, 0, triplet.c, triplet.a.getMax(), Optional.empty());
+        complexEventGrouping.addCDSNode(triplet.a);
+        int i = 0;
+        for(ComplexEvent ce: complexEventGrouping) {
+            if (ce != null) {
+                assertEquals("ComplexEvent" + i, expectedComplexEvents.get(i), ce);
+                ++i;
+            }
+        }
+        assertEquals("Number of complex events", expectedComplexEvents.size(), i);
+    }
+
+    /*
+                  5
+                  |
+                _ V3
+              /   | (l)
+             3   /
+             |   4
+         ___ V1  |
+     (l)/    |   V2
+       2     2  /| (l)
+       |     | / 3
+       1     1   |
+       |     |   b (3)
+       0     b (1)
+       |
+       b (0)
+    */
+    public static List<Triple<CDSTimeNode, List<ComplexEvent>, Long>> getCDSTime2() {
+        CDSNodeManager m = new CDSNodeManager();
+        CDSTimeNode bottom0 = m.createBottomNode(0);
+        CDSTimeNode bottom1 = m.createBottomNode(1);
+        CDSTimeNode bottom3 = m.createBottomNode(3);
+
+        CDSTimeNode zero = m.createOutputNode(bottom0, Transition.TransitionType.BLACK, event0, 0);
+        CDSTimeNode oneL = m.createOutputNode(zero, Transition.TransitionType.BLACK, event1, 1);
+        CDSTimeNode twoL = m.createOutputNode(oneL, Transition.TransitionType.BLACK, event2, 2);
+        CDSTimeNode oneR = m.createOutputNode(bottom1, Transition.TransitionType.BLACK, event1, 1);
+        CDSTimeNode twoR = m.createOutputNode(oneR, Transition.TransitionType.BLACK, event2, 2);
+        CDSTimeNode v1 = m.createUnionNode(twoL, twoR);
+        CDSTimeNode threeL = m.createOutputNode(v1, Transition.TransitionType.BLACK, event3, 3);
+        CDSTimeNode threeR = m.createOutputNode(bottom3, Transition.TransitionType.BLACK, event3, 3);
+        CDSTimeNode v2 = m.createUnionNode(threeR, oneR);
+        CDSTimeNode four = m.createOutputNode(v2, Transition.TransitionType.BLACK, event4, 4);
+        CDSTimeNode v3 = m.createUnionNode(four, threeL);
+        CDSTimeNode five = m.createOutputNode(v3, Transition.TransitionType.BLACK, event5, 5);
+
+        List<Triple<CDSTimeNode, List<ComplexEvent>, Long>> r = new ArrayList<>();
+
+        {
+            long timeWindow = 4;
+            ComplexEvent complexEvent1 = new ComplexEvent();
+            complexEvent1.push(event5, null);
+            complexEvent1.push(event4, null);
+            complexEvent1.push(event3, null);
+            ComplexEvent complexEvent2 = new ComplexEvent();
+            complexEvent2.push(event5, null);
+            complexEvent2.push(event4, null);
+            complexEvent2.push(event1, null);
+            ComplexEvent complexEvent3 = new ComplexEvent();
+            complexEvent3.push(event5, null);
+            complexEvent3.push(event3, null);
+            complexEvent3.push(event2, null);
+            complexEvent3.push(event1, null);
+            r.add(new Triple<>(five, List.of(complexEvent1, complexEvent2, complexEvent3), timeWindow));
+        }
+
+        {
+            long timeWindow = 3;
+            ComplexEvent complexEvent1 = new ComplexEvent();
+            complexEvent1.push(event5, null);
+            complexEvent1.push(event4, null);
+            complexEvent1.push(event3, null);
+            r.add(new Triple<>(five, List.of(complexEvent1), timeWindow));
+        }
+
+        return r;
+    }
+    @Test
+    public void testTimeWindowsIterator2() {
+        for(Triple<CDSTimeNode, List<ComplexEvent>, Long> triplet : getCDSTime2()) {
+            List<ComplexEvent> expectedComplexEvents = triplet.b;
+            CDSTimeComplexEventGrouping complexEventGrouping = new CDSTimeComplexEventGrouping(null, 0, triplet.c, triplet.a.getMax(), Optional.empty());
+            complexEventGrouping.addCDSNode(triplet.a);
+            int i = 0;
+            for(ComplexEvent ce: complexEventGrouping) {
+                if (ce != null) {
+                    assertEquals("ComplexEvent" + i, expectedComplexEvents.get(i), ce);
+                    ++i;
+                }
+            }
+            assertEquals("Number of complex events", expectedComplexEvents.size(), i);
+        }
+    }
+
+    // ************************* Time-Window & Ranged Enumeration ******************************
+
+    // TODO
 }

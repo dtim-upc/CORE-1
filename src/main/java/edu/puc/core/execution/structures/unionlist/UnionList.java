@@ -38,11 +38,11 @@ public class UnionList {
         } else {
             for (int i = nodeList.size() - 2; i >= 0; i--) {
                 CDSTimeNode current = nodeList.get(i);
-                if (newNode.getMm() == current.getMm()) {
+                if (newNode.getMax() == current.getMax()) {
                     // Order of createUnionNode doesn't matter.
                     nodeList.set(i, manager.createUnionNode(newNode, current));
                     return;
-                } else if (newNode.getMm() > current.getMm()) {
+                } else if (newNode.getMax() > current.getMax()) {
                     nodeList.add(i, newNode); // shifts to the right
                     return;
                 }

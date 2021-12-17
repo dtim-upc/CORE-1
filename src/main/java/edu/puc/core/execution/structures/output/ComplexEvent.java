@@ -32,12 +32,8 @@ public class ComplexEvent implements Iterable<Event> {
         return head;
     }
 
+    // This is performant implementation of popUntil.
     void popUntil(ComplexEventNode node) {
-        head = node.getNext();
-    }
-
-    // TODO unify with popUntil when CDSTimeComplexEventGrouping is fixed with a single stack.
-    void popUntil2(ComplexEventNode node) {
         head = node;
     }
 

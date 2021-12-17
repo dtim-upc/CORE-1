@@ -24,9 +24,9 @@ public class CDSNodeManager {
     public CDSTimeUnionNode createUnionNode(CDSTimeNode left, CDSTimeNode right) {
         CDSTimeUnionNode newNode;
         // TODO This is different from the paper...
-        if (left.getMm() > right.getMm()) {
+        if (left.getMax() > right.getMax()) {
             newNode = new CDSTimeUnionNode(new WeakReference<>(left), new WeakReference<>(right));
-        } else if (right.getMm() > left.getMm()) {
+        } else if (right.getMax() > left.getMax()) {
             newNode = new CDSTimeUnionNode(new WeakReference<>(right), new WeakReference<>(left));
         } else if (left instanceof CDSTimeOutputNode) {
             newNode = new CDSTimeUnionNode(new WeakReference<>(left), new WeakReference<>(right));
@@ -47,7 +47,7 @@ public class CDSNodeManager {
                 u2 = new CDSTimeUnionNode(rightRight, leftRight);
             } else if (tempRightRight == null) {
                 u2 = new CDSTimeUnionNode(leftRight, rightRight);
-            } else if (tempLeftRight.getMm() > tempRightRight.getMm()) {
+            } else if (tempLeftRight.getMax() > tempRightRight.getMax()) {
                 u2 = new CDSTimeUnionNode(leftRight, rightRight);
             } else {
                 u2 = new CDSTimeUnionNode(rightRight, leftRight);
@@ -69,10 +69,10 @@ public class CDSNodeManager {
     }
 
     /** Pop nodes until you find one that is inside the time-windows */
-    public void prune(long timestamp, long limit) {
+    public void prune(long currentTime, long windowDelta) {
         LinkedNode newFirst = null;
         for (LinkedNode ln: NodeList) {
-            if (timestamp - ln.getData().getMm() < limit) {
+            if (currentTime - ln.getData().getMax() < windowDelta) {
                 newFirst = ln;
                 break;
             }

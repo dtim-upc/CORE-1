@@ -2,18 +2,19 @@ package edu.puc.core.execution.structures.CDS.time;
 
 public class CDSTimeBottomNode extends CDSTimeNode {
 
-    private final long mm;
+    private final long max;
 
     // Use with care since the current time is always wrong!
     public static final CDSTimeBottomNode BOTTOM = new CDSTimeBottomNode(0);
 
-    public CDSTimeBottomNode(long currentTime) {
-        this.mm = currentTime;
+    /** Use {@link CDSNodeManager} to create CDSTimeNodes. */
+    CDSTimeBottomNode(long currentTime) {
+        this.max = currentTime;
     }
 
     @Override
-    public long getMm() {
-        return mm;
+    public long getMax() {
+        return max;
     }
 
     @Override

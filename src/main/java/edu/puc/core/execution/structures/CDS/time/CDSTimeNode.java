@@ -8,7 +8,7 @@ public abstract class CDSTimeNode {
      * Maximum-start, denoted max(n).
      * Recall that on union-nodes max(left(u)) >= max(right(u))
      */
-    abstract public long getMm();
+    abstract public long getMax();
 
     /** The number of paths from this node */
     abstract public int getPaths();

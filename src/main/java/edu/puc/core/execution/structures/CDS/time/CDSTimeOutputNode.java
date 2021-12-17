@@ -8,13 +8,14 @@ public class CDSTimeOutputNode extends CDSTimeNode {
     final private Transition.TransitionType transitionType;
     final private CDSTimeNode child;
     final private int paths;
-    final private long mm;
+    final private long max;
 
+    /** Use {@link CDSNodeManager} to create CDSTimeNodes. */
     CDSTimeOutputNode(CDSTimeNode child, Transition.TransitionType transitionType, Event event, long currentTime) {
         this.child = child;
         this.transitionType = transitionType;
         this.event = event;
-        this.mm = currentTime;
+        this.max = currentTime;
         this.paths = child.getPaths();
     }
 
@@ -36,8 +37,8 @@ public class CDSTimeOutputNode extends CDSTimeNode {
     }
 
     @Override
-    public long getMm() {
-        return this.mm;
+    public long getMax() {
+        return this.max;
     }
 
     @Override

@@ -25,8 +25,10 @@ public class TimeWindowsExecutor extends BaseExecutor {
     private Map<State<?>, UnionList> states;
     private ArrayList<State<?>> orderedStateList;
 
-    private int count;
+    /** Executes {@link CDSNodeManager#prune(long, long)} every {@link #PRUNE_THRESHOLD}*/
     private final int PRUNE_THRESHOLD = 1000;
+    /** From 0 to {@link #PRUNE_THRESHOLD}*/
+    private int count;
 
     TimeWindowsExecutor(Traverser traverser, BitSetGenerator bitSetGenerator, boolean discardPartials, TimeWindow timeWindow) {
         super(traverser, bitSetGenerator, discardPartials);
@@ -82,7 +84,7 @@ public class TimeWindowsExecutor extends BaseExecutor {
         execTrans(event, newOrderedStateList, _states, bitSet, traverser.getInitialState());
         for (State<?> currentState : orderedStateList) {
             // Only process if the union-list referenced is not null and inside the time-windows.
-            if (states.get(currentState).getHead() == null || states.get(currentState).getHead().getMm() - currentTime > windowDelta) {
+            if (states.get(currentState).getHead() == null || states.get(currentState).getHead().getMax() - currentTime > windowDelta) {
                 break;
             }
             execTrans(event, newOrderedStateList, _states, bitSet, currentState);
@@ -171,7 +173,7 @@ public class TimeWindowsExecutor extends BaseExecutor {
         for (State<?> state : activeFinalStates) {
             UnionList current = states.get(state);
             if (current != null) {
-                if (currentTime - current.merge().getMm() < windowDelta) {
+                if (currentTime - current.merge().getMax() < windowDelta) {
                     return true;
                 }
             }
@@ -188,7 +190,7 @@ public class TimeWindowsExecutor extends BaseExecutor {
     void enumerate(Event triggeringEvent, long limit) {
         watcher.update();
         if (matchCallback != null) {
-            CDSTimeComplexEventGrouping complexEventGrouping = new CDSTimeComplexEventGrouping(triggeringEvent, limit, windowDelta, currentTime);
+            CDSTimeComplexEventGrouping complexEventGrouping = new CDSTimeComplexEventGrouping(triggeringEvent, limit, this.windowDelta, this.currentTime, this.distributionConfiguration);
             boolean added = false;
             for (State<?> state : activeFinalStates) {
                 UnionList current = states.get(state);

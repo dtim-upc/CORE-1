@@ -122,7 +122,7 @@ public class EngineDeclaration {
     }
 
     // FIXME
-    // Test15 fails both in SimpleExecutor and TimeWindowsExecutor
+    // Test15 return is wrong
     @Test
     public void correctOutput() throws InterruptedException {
         engine.setMatchCallback( matches -> {
@@ -149,9 +149,11 @@ public class EngineDeclaration {
         Set<Double> values = new HashSet<>();
         for(CDSComplexEventGrouping<?> match : EngineDeclaration.allMatches) {
             match.forEach(m -> {
-                m.forEach(event ->
-                        values.add((Double) event.getValue("value"))
-                );
+                if (m != null) {
+                    m.forEach(event ->
+                            values.add((Double) event.getValue("value"))
+                    );
+                }
             });
         }
         assertEquals("Not correct output for Test" + numberOfTests, expectedValues, values);

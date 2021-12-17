@@ -14,11 +14,11 @@ import java.util.*;
 
 /** Equivalent to {@link CDSTimeComplexEventGrouping} without time-windows; hence more performant. */
 public class CDSSimpleComplexEventGrouping extends CDSComplexEventGrouping<CDSNode> {
-    private long totalMatches;
-    private Event lastEvent;
-    private long limit;
-    private List<CDSNode> CDSNodes;
-    private Optional<DistributionConfiguration> distributionConfiguration;
+    final private long totalMatches;
+    final private Event lastEvent;
+    final private long limit;
+    final private List<CDSNode> CDSNodes;
+    final private Optional<DistributionConfiguration> distributionConfiguration;
 
     public CDSSimpleComplexEventGrouping(Event currentEvent, long limit, Optional<DistributionConfiguration> distributionConfiguration){
         this.lastEvent = currentEvent;
@@ -41,6 +41,11 @@ public class CDSSimpleComplexEventGrouping extends CDSComplexEventGrouping<CDSNo
     @Override
     public Event getLastEvent(){
         return lastEvent;
+    }
+
+    @Override
+    protected Optional<DistributionConfiguration> getDistributionConfiguration() {
+        return this.distributionConfiguration;
     }
 
     // 1) This iterator will modify the complex events after each iteration.
@@ -86,9 +91,12 @@ public class CDSSimpleComplexEventGrouping extends CDSComplexEventGrouping<CDSNo
                 }
                 while (true) {
                     if (current.isBottom()) {
+                        if (stack.isEmpty()) {
+                            return  null;
+                        }
                         Triple<CDSNode, ComplexEventNode, Pair<Integer, Integer>> triplet = stack.pop();
                         current = triplet.a;
-                        complexEvent.popUntil2(triplet.b);
+                        complexEvent.popUntil(triplet.b);
                         s1 = triplet.c.a;
                         a1 = triplet.c.b;
                     } else if (current instanceof CDSOutputNode) {
@@ -96,9 +104,8 @@ public class CDSSimpleComplexEventGrouping extends CDSComplexEventGrouping<CDSNo
                         if (temp.getTransitionType().isBlack()) {
                             complexEvent.push(temp.getEvent(), temp.getTransitionType());
                         } else {
-                            throw new RuntimeException("Does this ever happen? Yes! Check this else-case.");
-//                            Event toAdd = new Event(temp.getEvent().getIndex()); // Everything to null except the event index
-//                            complexEvent.push(toAdd, temp.getTransitionType());
+                            Event toAdd = new Event(temp.getEvent().getIndex());
+                            complexEvent.push(toAdd, temp.getTransitionType());
                         }
                         current = temp.getChild();
                         if (current.isBottom()) {
@@ -122,25 +129,11 @@ public class CDSSimpleComplexEventGrouping extends CDSComplexEventGrouping<CDSNo
                         if (left.getPaths() > s1) {
                             current = left;
                         } else {
-                            if (!stack.isEmpty()) {
-                                // Workaround to force the stack case (first 'if')
-                                current = CDSNonUnionNode.BOTTOM;
-                            } else {
-                                // Nothing left to do in this CDS.
-                                current = CDSNonUnionNode.BOTTOM;
-                                return null;
-                            }
+                            // Go to the next node in the stack or CDSNodeIterator
+                            current = CDSNonUnionNode.BOTTOM;
                         }
                     }
                 }
-            }
-
-            // Returns a Pair<a, s> corresponding to the parameters from the paper.
-            private Pair<Integer, Integer> getEnumerationParameters(int paths) {
-                DistributionConfiguration tmp = distributionConfiguration.orElse(DistributionConfiguration.DEFAULT);
-                int a = (int) Math.ceil((double) paths / (double) tmp.processes);
-                int s = a * tmp.process;
-                return new Pair<>(a, s);
             }
         };
     }
