@@ -71,9 +71,8 @@ public class MatchCallback implements Consumer<CDSComplexEventGrouping> {
     }
 
     private void printCallback(CDSComplexEventGrouping<?> matches) {
-        count = 0;
         System.err.println("Event " + matches.getLastEvent() + " triggered matches:");
-//        Profiler.incrementMatches();
+        count = 0;
 
         for (ComplexEvent match: matches) {
 //            if (count >= limit) {

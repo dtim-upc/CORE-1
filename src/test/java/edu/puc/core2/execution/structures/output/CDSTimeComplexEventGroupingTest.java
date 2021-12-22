@@ -2,6 +2,7 @@ package edu.puc.core2.execution.structures.output;
 
 import edu.puc.core2.execution.structures.CDS.time.CDSNodeManager;
 import edu.puc.core2.execution.structures.CDS.time.CDSTimeNode;
+import edu.puc.core2.execution.structures.CDS.time.CDSTimeOutputNode;
 import edu.puc.core2.parser.plan.cea.Transition;
 import edu.puc.core2.runtime.events.Event;
 import edu.puc.core2.util.DistributionConfiguration;
@@ -321,7 +322,7 @@ public class CDSTimeComplexEventGroupingTest {
              3
              |
          ___ V
-     (l)/    |(r)
+     (r)/    |(l)
        2     2
        |     |
        1     1
@@ -339,7 +340,7 @@ public class CDSTimeComplexEventGroupingTest {
         CDSTimeNode bottom1 = m.createBottomNode(1);
         CDSTimeNode oneR = m.createOutputNode(bottom1, Transition.TransitionType.BLACK, event1, 1);
         CDSTimeNode twoR = m.createOutputNode(oneR, Transition.TransitionType.BLACK, event2, 2);
-        CDSTimeNode v = m.createUnionNode(twoL, twoR);
+        CDSTimeNode v = m.createUnionNode(twoR, twoL);
         CDSTimeNode three = m.createOutputNode(v, Transition.TransitionType.BLACK, event3, 3);
 
         long timeWindow = 2;
@@ -355,7 +356,7 @@ public class CDSTimeComplexEventGroupingTest {
     public void testTimeWindowsIterator() {
         Triple<CDSTimeNode, List<ComplexEvent>, Long> triplet = getCDSTime1();
         List<ComplexEvent> expectedComplexEvents = triplet.b;
-        CDSTimeComplexEventGrouping complexEventGrouping = new CDSTimeComplexEventGrouping(null, 0, triplet.c, triplet.a.getMax(), Optional.empty());
+        CDSTimeComplexEventGrouping complexEventGrouping = new CDSTimeComplexEventGrouping(null, 0, triplet.c, ((CDSTimeOutputNode)triplet.a).getEvent().getIndex(), Optional.empty());
         complexEventGrouping.addCDSNode(triplet.a);
         int i = 0;
         for(ComplexEvent ce: complexEventGrouping) {
@@ -375,7 +376,7 @@ public class CDSTimeComplexEventGroupingTest {
              3   /
              |   4
          ___ V1  |
-     (l)/    |   V2
+        / (l)|   V2
        2     2  /| (l)
        |     | / 3
        1     1   |
@@ -395,7 +396,7 @@ public class CDSTimeComplexEventGroupingTest {
         CDSTimeNode twoL = m.createOutputNode(oneL, Transition.TransitionType.BLACK, event2, 2);
         CDSTimeNode oneR = m.createOutputNode(bottom1, Transition.TransitionType.BLACK, event1, 1);
         CDSTimeNode twoR = m.createOutputNode(oneR, Transition.TransitionType.BLACK, event2, 2);
-        CDSTimeNode v1 = m.createUnionNode(twoL, twoR);
+        CDSTimeNode v1 = m.createUnionNode(twoR, twoL);
         CDSTimeNode threeL = m.createOutputNode(v1, Transition.TransitionType.BLACK, event3, 3);
         CDSTimeNode threeR = m.createOutputNode(bottom3, Transition.TransitionType.BLACK, event3, 3);
         CDSTimeNode v2 = m.createUnionNode(threeR, oneR);
@@ -438,7 +439,7 @@ public class CDSTimeComplexEventGroupingTest {
     public void testTimeWindowsIterator2() {
         for(Triple<CDSTimeNode, List<ComplexEvent>, Long> triplet : getCDSTime2()) {
             List<ComplexEvent> expectedComplexEvents = triplet.b;
-            CDSTimeComplexEventGrouping complexEventGrouping = new CDSTimeComplexEventGrouping(null, 0, triplet.c, triplet.a.getMax(), Optional.empty());
+            CDSTimeComplexEventGrouping complexEventGrouping = new CDSTimeComplexEventGrouping(null, 0, triplet.c, ((CDSTimeOutputNode)triplet.a).getEvent().getIndex(), Optional.empty());
             complexEventGrouping.addCDSNode(triplet.a);
             int i = 0;
             for(ComplexEvent ce: complexEventGrouping) {

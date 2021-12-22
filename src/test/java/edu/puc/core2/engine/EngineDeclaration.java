@@ -107,7 +107,7 @@ public class EngineDeclaration {
         edu.puc.core2.runtime.events.Event e;
 
         /* Start reading the streams */
-        engine.start();
+        engine.start(true);
         Thread.sleep(500); // 500 ms is good enough to load the whole csv
         while ((e = engine.nextEvent()) != null) {
             BaseEngine.LOGGER.info("Event sent: " + e.toString());
@@ -127,7 +127,7 @@ public class EngineDeclaration {
             allMatches.add(matches);
         });
 
-        engine.start();
+        engine.start(true);
         Thread.sleep(500); // wait until all queries have been parsed and all events have been read.
         edu.puc.core2.runtime.events.Event e;
         while ((e = engine.nextEvent()) != null) {

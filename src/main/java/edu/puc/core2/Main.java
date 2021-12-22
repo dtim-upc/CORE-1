@@ -63,7 +63,8 @@ public class Main {
         Event e;
 
         /* Start initial queries and reading the streams */
-        engine.start();
+        boolean andWait = cmd.hasOption("offline");
+        engine.start(andWait);
 
         /* Send events to the engine */
         while ((e = engine.nextEvent()) != null) {

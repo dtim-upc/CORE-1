@@ -71,7 +71,11 @@ public abstract class BaseEngine implements RemoteCOREInterface {
 
     public abstract void setMatchCallback(Consumer<CDSComplexEventGrouping> callback);
 
-    public abstract void start();
+    /** Starts the engine
+     *
+     * @param andWait the executorManager and streamManager
+     */
+    public abstract void start(boolean andWait) throws InterruptedException;
 
     public abstract Event nextEvent() throws InterruptedException;
 

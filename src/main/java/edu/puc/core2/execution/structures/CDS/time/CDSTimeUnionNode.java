@@ -6,6 +6,7 @@ public class CDSTimeUnionNode extends CDSTimeNode {
 
     private final WeakReference<CDSTimeNode> left;
     private final WeakReference<CDSTimeNode> right;
+    /** Recall max(left(u)) >= max(right(u)) */
     private final long max;
     private final int paths;
 

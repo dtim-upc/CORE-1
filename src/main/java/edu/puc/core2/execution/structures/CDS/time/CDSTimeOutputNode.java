@@ -15,8 +15,14 @@ public class CDSTimeOutputNode extends CDSTimeNode {
         this.child = child;
         this.transitionType = transitionType;
         this.event = event;
-        this.max = currentTime;
         this.paths = child.getPaths();
+
+        // Why not always child.getMax(); ?
+        if (child.isBottom()) {
+            this.max = currentTime;
+        } else {
+            this.max = child.getMax();
+        }
     }
 
     public Event getEvent() {
