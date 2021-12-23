@@ -21,8 +21,31 @@ public abstract class CDSComplexEventGrouping<T> implements Iterable<ComplexEven
     // This method is used by ranged enumeration (aka distributed enumeration).
     protected Pair<Integer, Integer> getEnumerationParameters(int paths) {
         DistributionConfiguration tmp = getDistributionConfiguration().orElse(DistributionConfiguration.DEFAULT);
-        int a = (int) Math.ceil((double) paths / (double) tmp.processes);
-        int s = a * tmp.process;
+        /*
+        paths = 18
+        processes = 4
+            q = 4
+            r = 2
+            process = 0
+              a = 5
+              s = 0
+            process = 1
+              a = 5
+              s = 5
+            process = 2
+              a = 4
+              s = 10
+            process = 3
+              a = 4
+              s = 14
+        */
+        int q = (int) Math.floor((double) paths / (double) tmp.processes);
+        int r = paths - q*tmp.processes;
+        int a = q;
+        if (tmp.process < r) {
+            a += 1;
+        }
+        int s = tmp.process*q + Math.min(tmp.process, r);
         return new Pair<>(a, s);
     }
 }

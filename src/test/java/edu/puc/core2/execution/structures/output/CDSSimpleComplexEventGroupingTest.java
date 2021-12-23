@@ -230,11 +230,11 @@ public class CDSSimpleComplexEventGroupingTest {
                 // Process 1
                 pair.b.get(3),
                 pair.b.get(4),
-                pair.b.get(5),
                 // Process 2
+                pair.b.get(5),
                 pair.b.get(6)
         );
-        int[] expectedAmountByProcess = {4, 7, 8};
+        int[] expectedAmountByProcess = {4, 6, 8};
 
         int i = 0;
         for(int process : zeroToN(processes)) {
