@@ -34,5 +34,6 @@ public class SocketStreamReader extends StreamReader {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        ready = true;
     }
 }

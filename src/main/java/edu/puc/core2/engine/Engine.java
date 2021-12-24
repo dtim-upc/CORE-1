@@ -40,7 +40,12 @@ public class Engine extends BaseEngine {
     public void start(boolean andWait) throws InterruptedException {
         executorManager.start();
         streamManager.start();
-        if (andWait) waitExecutorManager();
+        if (andWait) {
+            waitExecutorManager();
+            while (! streamManager.isReady()) {
+                Thread.sleep(100);
+            }
+        }
     }
 
     /*

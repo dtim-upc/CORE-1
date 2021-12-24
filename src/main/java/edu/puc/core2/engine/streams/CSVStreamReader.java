@@ -18,5 +18,6 @@ public class CSVStreamReader extends StreamReader {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        ready = true;
     }
 }
