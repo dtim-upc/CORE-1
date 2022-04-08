@@ -36,7 +36,7 @@ public class UnionList {
         if (nodeList.isEmpty()) {
             nodeList.add(newNode);
         } else {
-            for (int i = nodeList.size() - 2; i >= 0; i--) {
+            for (int i = nodeList.size() - 1; i > 0; i--) {
                 CDSTimeNode current = nodeList.get(i);
                 if (newNode.getMax() == current.getMax()) {
                     // Order of createUnionNode doesn't matter.
