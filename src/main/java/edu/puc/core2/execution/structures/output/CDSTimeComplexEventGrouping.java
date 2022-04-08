@@ -57,7 +57,7 @@ public class CDSTimeComplexEventGrouping extends CDSComplexEventGrouping<CDSTime
             CDSTimeNode current = CDSNodeIterator.next();
             final Stack<Triple<CDSTimeNode, ComplexEventNode, Pair<Integer, Integer>>> stack = new Stack<>();
             ComplexEvent complexEvent = new ComplexEvent();
-            final Pair<Integer, Integer> enumerationParameters = getEnumerationParameters(current.getPaths());
+            final Pair<Integer, Integer> enumerationParameters = getEnumerationParameters(current.getPathsCount(currentTime, windowDelta));
             int a1 = enumerationParameters.a;
             int s1 = enumerationParameters.b;
 
@@ -77,7 +77,7 @@ public class CDSTimeComplexEventGrouping extends CDSComplexEventGrouping<CDSTime
                 if (current.isBottom() && stack.isEmpty()) {
                     complexEvent = new ComplexEvent();
                     current = CDSNodeIterator.next();
-                    final Pair<Integer, Integer> enumerationParameters = getEnumerationParameters(current.getPaths());
+                    final Pair<Integer, Integer> enumerationParameters = getEnumerationParameters(current.getPathsCount(currentTime, windowDelta));
                     a1 = enumerationParameters.a;
                     s1 = enumerationParameters.b;
                 }
@@ -88,7 +88,7 @@ public class CDSTimeComplexEventGrouping extends CDSComplexEventGrouping<CDSTime
                 }
                 // Edge case that only happens when the complex event has no union nodes.
                 // This prevents any traversal if the process doesn't have any work left
-                if (current.getPaths() <= s1) {
+                if (current.getPathsCount(currentTime, windowDelta) <= s1) {
                     current = CDSTimeBottomNode.BOTTOM;
                     return null;
                 }
@@ -111,10 +111,13 @@ public class CDSTimeComplexEventGrouping extends CDSComplexEventGrouping<CDSTime
                             complexEvent.push(toAdd, temp.getTransitionType());
                         }
                         current = temp.getChild();
+                        // TODO: can this ever happen
                         if (current == null) {
                             // This will happen when the node has been pruned and garbage collected.
                             current = CDSTimeBottomNode.BOTTOM;
-                        } else if (currentTime - current.getMax() > windowDelta) {
+                        }
+                        // TODO: is this check needed?
+                        else if (currentTime - current.getMax() > windowDelta) {
                             // Prune the node if necessary.
                             current = CDSTimeBottomNode.BOTTOM;
                         } else if (current.isBottom()) {
@@ -130,9 +133,10 @@ public class CDSTimeComplexEventGrouping extends CDSComplexEventGrouping<CDSTime
                         // Right branch
                         {
                             if (right.getMax() >= currentTime - windowDelta) {
-                                int a2 = (left.getPaths() > s1) ? (a1 - Math.max(0, left.getPaths() - s1)) : a1;
-                                int s2 = Math.max(0, s1 - left.getPaths());
-                                if (right.getPaths() > s2 && a2 > 0) {
+                                int a2 = a1 - Math.max(0, left.getPathsCount(currentTime, windowDelta) - s1);
+                                if (a2 > 0) {
+                                    // If you remove the max, the calculus of a2 will be wrong since it is subtracting s1.
+                                    int s2 = Math.max(0, s1 - left.getPathsCount(currentTime, windowDelta));
                                     stack.push(new Triple<>(right, complexEvent.getHead(), new Pair<>(s2, a2)));
                                 }
                             }
@@ -141,7 +145,7 @@ public class CDSTimeComplexEventGrouping extends CDSComplexEventGrouping<CDSTime
                         // Left branch
                         // There is no need to look at the time-window since on the next iteration
                         // there will be a non-union node that will check the time-window.
-                        if (left.getPaths() > s1) {
+                        if (left.getPathsCount(currentTime, windowDelta) > s1) {
                             current = left;
                         } else {
                             // Go to the next node in the stack or CDSNodeIterator

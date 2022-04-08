@@ -1,6 +1,7 @@
 package edu.puc.core2.execution.structures.CDS.time;
 
 import edu.puc.core2.parser.plan.cea.Transition;
+import edu.puc.core2.parser.plan.query.TimeWindow;
 import edu.puc.core2.runtime.events.Event;
 
 import java.lang.ref.WeakReference;
@@ -21,17 +22,17 @@ public class CDSNodeManager {
         return newNode;
     }
 
-    public CDSTimeUnionNode createUnionNode(CDSTimeNode left, CDSTimeNode right) {
+    public CDSTimeUnionNode createUnionNode(CDSTimeNode left, CDSTimeNode right, long currentTime, long windowDelta) {
         CDSTimeUnionNode newNode;
         // TODO This is different from the paper...
         if (left.getMax() > right.getMax()) {
-            newNode = new CDSTimeUnionNode(new WeakReference<>(left), new WeakReference<>(right));
+            newNode = new CDSTimeUnionNode(new WeakReference<>(left), new WeakReference<>(right), currentTime, windowDelta);
         } else if (right.getMax() > left.getMax()) {
-            newNode = new CDSTimeUnionNode(new WeakReference<>(right), new WeakReference<>(left));
+            newNode = new CDSTimeUnionNode(new WeakReference<>(right), new WeakReference<>(left), currentTime, windowDelta);
         } else if (left instanceof CDSTimeOutputNode) {
-            newNode = new CDSTimeUnionNode(new WeakReference<>(left), new WeakReference<>(right));
+            newNode = new CDSTimeUnionNode(new WeakReference<>(left), new WeakReference<>(right), currentTime, windowDelta);
         } else if (right instanceof CDSTimeOutputNode) {
-            newNode = new CDSTimeUnionNode(new WeakReference<>(right), new WeakReference<>(left));
+            newNode = new CDSTimeUnionNode(new WeakReference<>(right), new WeakReference<>(left), currentTime, windowDelta);
         } else {
             CDSTimeUnionNode tempLeft = (CDSTimeUnionNode) left;
             CDSTimeUnionNode tempRight = (CDSTimeUnionNode) right;
@@ -44,19 +45,19 @@ public class CDSNodeManager {
             CDSTimeUnionNode u2;
 
             if (tempLeftRight == null) {
-                u2 = new CDSTimeUnionNode(rightRight, leftRight);
+                u2 = new CDSTimeUnionNode(rightRight, leftRight, currentTime, windowDelta);
             } else if (tempRightRight == null) {
-                u2 = new CDSTimeUnionNode(leftRight, rightRight);
+                u2 = new CDSTimeUnionNode(leftRight, rightRight, currentTime, windowDelta);
             } else if (tempLeftRight.getMax() > tempRightRight.getMax()) {
-                u2 = new CDSTimeUnionNode(leftRight, rightRight);
+                u2 = new CDSTimeUnionNode(leftRight, rightRight, currentTime, windowDelta);
             } else {
-                u2 = new CDSTimeUnionNode(rightRight, leftRight);
+                u2 = new CDSTimeUnionNode(rightRight, leftRight, currentTime, windowDelta);
             }
 
             NodeList.add(new LinkedNode(u2));
-            CDSTimeUnionNode u1 = new CDSTimeUnionNode(tempRight.getLeftReference(), new WeakReference<>(u2));
+            CDSTimeUnionNode u1 = new CDSTimeUnionNode(tempRight.getLeftReference(), new WeakReference<>(u2), currentTime, windowDelta);
             NodeList.add(new LinkedNode(u1));
-            newNode = new CDSTimeUnionNode(tempLeft.getLeftReference(), new WeakReference<>(u1));
+            newNode = new CDSTimeUnionNode(tempLeft.getLeftReference(), new WeakReference<>(u1), currentTime, windowDelta);
         }
         NodeList.add(new LinkedNode(newNode));
         return newNode;

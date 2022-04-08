@@ -65,7 +65,7 @@ public class TimeWindowsExecutor extends BaseExecutor {
 
     private void startNewRun() {
         UnionList ul = new UnionList(manager);
-        ul.insert(manager.createBottomNode(currentTime));
+        ul.insert(manager.createBottomNode(currentTime), currentTime, windowDelta);
         states.put(traverser.getInitialState(), ul);
     }
 
@@ -121,14 +121,14 @@ public class TimeWindowsExecutor extends BaseExecutor {
         // In the paper black comes before white
         if (!whiteState.isRejectionState()) {
             UnionList ul = states.get(currentState);
-            add(whiteState, _states, ul::merge, ul, newOrderedStateList);
+            add(whiteState, _states, () -> ul.merge(currentTime, windowDelta), ul, newOrderedStateList);
         }
 
         // Why only black triggers complex event enumeration?
         if (!blackState.isRejectionState()) {
-            CDSTimeNode n = manager.createOutputNode(states.get(currentState).merge(), Transition.TransitionType.BLACK, event, currentTime);
+            CDSTimeNode n = manager.createOutputNode(states.get(currentState).merge(currentTime, windowDelta), Transition.TransitionType.BLACK, event, currentTime);
             UnionList ul = new UnionList(manager);
-            ul.insert(n);
+            ul.insert(n, currentTime, windowDelta);
             add(blackState, _states, () -> n, ul, newOrderedStateList);
 
             if (blackState.isFinalState()) {
@@ -150,7 +150,7 @@ public class TimeWindowsExecutor extends BaseExecutor {
             newOrderedStateList.add(q);
             _states.put(q, ul);
         } else {
-            stateNodeList.insert(n.get());
+            stateNodeList.insert(n.get(), currentTime, windowDelta);
         }
     }
 
@@ -173,7 +173,7 @@ public class TimeWindowsExecutor extends BaseExecutor {
         for (State<?> state : activeFinalStates) {
             UnionList current = states.get(state);
             if (current != null) {
-                if (currentTime - current.merge().getMax() < windowDelta) {
+                if (currentTime - current.merge(currentTime, windowDelta).getMax() < windowDelta) {
                     return true;
                 }
             }
@@ -195,7 +195,7 @@ public class TimeWindowsExecutor extends BaseExecutor {
             for (State<?> state : activeFinalStates) {
                 UnionList current = states.get(state);
                 if (current != null) {
-                    complexEventGrouping.addCDSNode(current.merge());
+                    complexEventGrouping.addCDSNode(current.merge(currentTime, windowDelta));
                     added = true;
                 }
             }
