@@ -16,31 +16,31 @@ public class UnionList {
         this.manager = manager;
     }
 
-    public CDSTimeNode merge() {
+    public CDSTimeNode merge(long currentTime, long windowDelta) {
         if (nodeList.isEmpty()) {
             return null;
         } else if (nodeList.size() == 1) {
             return nodeList.get(0);
         } else if (nodeList.size() == 2) {
-            return manager.createUnionNode(nodeList.get(1), nodeList.get(0));
+            return manager.createUnionNode(nodeList.get(1), nodeList.get(0), currentTime, windowDelta);
         } else {
-            CDSTimeUnionNode last = manager.createUnionNode(nodeList.get(1), nodeList.get(0));
+            CDSTimeUnionNode last = manager.createUnionNode(nodeList.get(1), nodeList.get(0), currentTime, windowDelta);
             for (int i = 2; i < nodeList.size(); i++) {
-                last = manager.createUnionNode(nodeList.get(i), last);
+                last = manager.createUnionNode(nodeList.get(i), last, currentTime, windowDelta);
             }
             return last;
         }
     }
 
-    public void insert(CDSTimeNode newNode) {
+    public void insert(CDSTimeNode newNode, long currentTime, long windowDelta) {
         if (nodeList.isEmpty()) {
             nodeList.add(newNode);
         } else {
-            for (int i = nodeList.size() - 2; i >= 0; i--) {
+            for (int i = nodeList.size() - 1; i > 0; i--) {
                 CDSTimeNode current = nodeList.get(i);
                 if (newNode.getMax() == current.getMax()) {
                     // Order of createUnionNode doesn't matter.
-                    nodeList.set(i, manager.createUnionNode(newNode, current));
+                    nodeList.set(i, manager.createUnionNode(newNode, current, currentTime, windowDelta));
                     return;
                 } else if (newNode.getMax() > current.getMax()) {
                     nodeList.add(i, newNode); // shifts to the right
